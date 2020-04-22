@@ -25,9 +25,12 @@ import com.webank.wedatasphere.linkis.server.conf.ServerConfiguration
 import com.webank.wedatasphere.linkis.server.exception.{IllegalUserTicketException, LoginExpireException, NonLoginException}
 import com.webank.wedatasphere.linkis.server.security.SSOUtils.sslEnable
 import com.webank.wedatasphere.linkis.server.{Message, _}
+import com.wf.captcha.utils.CaptchaUtil
 import javax.servlet._
 import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang.StringUtils
+import com.wf.captcha.GifCaptcha
+import com.wf.captcha.utils.CaptchaUtil
 
 /**
   * Created by enjoyyin on 2018/1/9.
@@ -36,6 +39,7 @@ class SecurityFilter extends Filter {
   private val refererValidate = ServerConfiguration.BDP_SERVER_SECURITY_REFERER_VALIDATE.getValue
   private val localAddress = ServerConfiguration.BDP_SERVER_ADDRESS.getValue
   protected val testUser = ServerConfiguration.BDP_TEST_USER.getValue
+  private val isOpenValidateCode = ServerConfiguration.BDP_SERVER_USER_IS_OPEN_VALIDATE_CODE.getValue
 
   override def init(filterConfig: FilterConfig): Unit = {}
 
@@ -68,7 +72,30 @@ class SecurityFilter extends Filter {
       if(SSOUtils.sslEnable) message.data("publicKey", RSAUtils.getDefaultPublicKey())
       filterResponse(message)
       false
+    } else if(request.getRequestURI == ServerConfiguration.BDP_SERVER_RESTFUL_CAPTCHA.getValue) {
+      //校验
+      if(isOpenValidateCode){
+        // 设置位数
+        CaptchaUtil.out(5, request, response)
+        // 设置宽、高、位数
+        CaptchaUtil.out(130, 48, 5, request, response)
+        // 使用gif验证码
+        val gifCaptcha = new GifCaptcha(130, 48, 4)
+        CaptchaUtil.out(gifCaptcha, request, response)
+        return true
+      }
+      filterResponse(validateFailed("404"))
+      false
     } else if(request.getRequestURI == ServerConfiguration.BDP_SERVER_RESTFUL_LOGIN_URI.getValue) {
+      //校验
+      if(isOpenValidateCode){
+        val verCode = request.getParameter("verCode")
+        if (!CaptchaUtil.ver(verCode, request)) {
+          CaptchaUtil.clear(request) // 清除session中的验证码
+          filterResponse(validateFailed("验证码错误"))
+          return false
+        }
+      }
       true
     } else {
       val userName = Utils.tryCatch(SecurityFilter.getLoginUser(request)){

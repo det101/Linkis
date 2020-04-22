@@ -76,6 +76,7 @@ object ServerConfiguration {
   val BDP_SERVER_SERVER_CONTEXT_PATH = CommonVars("wds.linkis.server.context.path", "/")
   val BDP_SERVER_RESTFUL_URI = CommonVars("wds.linkis.server.restful.uri", "/api/rest_j/" + BDP_SERVER_VERSION)
   val BDP_SERVER_USER_URI = CommonVars("wds.linkis.server.user.restful.uri", "/api/rest_j/" + BDP_SERVER_VERSION + "/user")
+  val BDP_SERVER_RESTFUL_CAPTCHA = CommonVars("wds.linkis.server.user.restful.login.uri", new File(BDP_SERVER_USER_URI.getValue, "captcha").getPath)
   val BDP_SERVER_RESTFUL_LOGIN_URI = CommonVars("wds.linkis.server.user.restful.login.uri", new File(BDP_SERVER_USER_URI.getValue, "login").getPath)
   val BDP_SERVER_SECURITY_SSL_URI = CommonVars("wds.linkis.server.user.security.ssl.uri", new File(BDP_SERVER_USER_URI.getValue, "publicKey").getPath)
   val BDP_SERVER_SOCKET_URI = CommonVars("wds.linkis.server.socket.uri", "/ws")
@@ -96,6 +97,7 @@ object ServerConfiguration {
 
   val BDP_SERVER_RESTFUL_SCAN_PACKAGES = CommonVars("wds.linkis.server.restful.scan.packages", "")
   val BDP_SERVER_RESTFUL_REGISTER_CLASSES = CommonVars("wds.linkis.server.restful.register.classes", "")
+  val BDP_SERVER_USER_IS_OPEN_VALIDATE_CODE = CommonVars("wds.linkis.server.web.open.validate.code", false)
 //  val BDP_SERVER_SOCKET_SERVICE_SCAN_PACKAGES = CommonVars("wds.linkis.server.socket.service.scan.packages", BDP_SERVER_RESTFUL_SCAN_PACKAGES.getValue)
 
 }
